@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vinted Resell Tracker Pro</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vinted: {
+              50: '#eefbfb',
+              100: '#d4f4f4',
+              400: '#26c6da',
+              500: '#09b1ba',
+              600: '#078e96',
+              700: '#0a7178',
+              900: '#0d3b3f',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-card { animation: fadeSlideUp 0.22s ease-out forwards; }
+    input[type="range"] { accent-color: #09b1ba; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen pb-28 transition-colors duration-200 select-none">
+
+  <!-- HEADER FISSO -->
+  <header class="sticky top-0 z-30 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-vinted-400 to-vinted-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-vinted-500/20">
+          V
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-base font-extrabold tracking-tight leading-tight">Vinted Tracker</h1>
+            <span class="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-vinted-500/15 text-vinted-600 dark:text-vinted-400 border border-vinted-500/25">PRO</span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Magazzino, Studio Foto & AI</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button id="themeToggleBtn" type="button" aria-label="Cambia tema"
+          class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+          <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <main class="max-w-2xl mx-auto px-4 pt-4">
+
+    <!-- ========================================================= -->
+    <!-- TAB 1: DASHBOARD & MAGAZZINO                              -->
+    <!-- ========================================================= -->
+    <section id="tab-dashboard" class="tab-panel space-y-4">
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-2 gap-3">
+        <!-- Profitto Netto & ROI -->
+        <div class="col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-lg border border-slate-800 relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-vinted-500/20 blur-xl pointer-events-none"></div>
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Profitto Netto Reale (al netto spese)</span>
+              <div id="kpiNetProfit" class="text-3xl font-extrabold mt-1 tracking-tight text-emerald-400">+0,00 €</div>
+            </div>
+            <span id="kpiRoiBadge" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              ROI 0%
+            </span>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-700/70 flex items-center justify-between text-xs text-slate-300">
+            <span>Incasso annuo: <strong id="kpiTotalRevenue" class="text-white">0,00 €</strong></span>
+            <span>Margine stock: <strong id="kpiPotentialProfit" class="text-vinted-400">+0,00 €</strong></span>
+          </div>
+        </div>
+
+        <!-- Capitale Investito -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs font-medium">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            Capitale in Stock
+          </div>
+          <div id="kpiActiveCapital" class="text-xl font-extrabold mt-1">0,00 €</div>
+          <p id="kpiStockSummary" class="text-[11px] text-slate-400 mt-0.5">0 articoli in vendita</p>
+        </div>
+
+        <!-- Vendite & Spese Extra -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs font-medium">
+            <span class="w-2 h-2 rounded-full bg-vinted-500"></span>
+            Venduti / Spese
+          </div>
+          <div class="text-xl font-extrabold mt-1">
+            <span id="kpiSoldCount" class="text-emerald-500">0</span>
+            <span class="text-xs font-normal text-slate-400">venduti</span>
+          </div>
+          <p id="kpiExtraExpensesSummary" class="text-[11px] text-rose-400 mt-0.5">Spese extra: 0,00 €</p>
+        </div>
+      </div>
+
+      <!-- Barra DAC7 -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-4 h-4 text-vinted-500"></i>
+            <span class="text-xs font-bold">Soglia Fiscale DAC7 (<span id="dac7Year">2026</span>)</span>
+          </div>
+          <button type="button" id="toggleDac7InfoBtn" class="text-[11px] font-semibold text-vinted-500 flex items-center gap-1">
+            Info <i data-lucide="info" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+        <p id="dac7InfoText" class="hidden text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/70 p-2.5 rounded-xl leading-relaxed">
+          Puoi superare le 30 vendite senza blocchi: oltre <strong>30 vendite</strong> o <strong>2.000 € incassati</strong> nell'anno solare, Vinted richiede il Codice Fiscale e comunica i dati all'Agenzia delle Entrate. Conserva le ricevute degli acquisti per dimostrare il margine netto.
+        </p>
+        <div class="grid grid-cols-2 gap-3 text-[11px]">
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-slate-500">Vendite</span>
+              <strong id="dac7SalesLabel">0 / 30</strong>
+            </div>
+            <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div id="dac7SalesBar" class="h-full bg-vinted-500 rounded-full transition-all" style="width:0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-slate-500">Incasso</span>
+              <strong id="dac7RevLabel">0€ / 2.000€</strong>
+            </div>
+            <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div id="dac7RevBar" class="h-full bg-indigo-500 rounded-full transition-all" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pulsante + Nuovo Acquisto -->
+      <div class="flex items-center gap-2">
+        <button id="openNewItemModalBtn" type="button"
+          class="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-vinted-500 to-vinted-600 hover:from-vinted-400 hover:to-vinted-500 text-white font-bold text-sm shadow-lg shadow-vinted-500/25 flex items-center justify-center gap-2 active:scale-[0.98] transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          Nuovo Acquisto
+        </button>
+        <button id="openBotPasteQuickBtn" type="button"
+          class="py-3 px-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-vinted-600 dark:text-vinted-400 flex items-center gap-1.5 shadow-sm active:scale-[0.98] transition">
+          <i data-lucide="bot" class="w-4 h-4"></i>
+          Da Bot
+        </button>
+      </div>
+
+      <!-- Filtri Stato e Ricerca -->
+      <div class="space-y-2.5">
+        <div class="bg-slate-200/70 dark:bg-slate-900 p-1 rounded-2xl grid grid-cols-3 gap-1 border border-slate-200 dark:border-slate-800">
+          <button type="button" data-filter="stock" class="stock-filter-btn py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-vinted-600 dark:text-vinted-400 shadow-sm transition">
+            In Vendita (<span id="countFilterStock">0</span>)
+          </button>
+          <button type="button" data-filter="sold" class="stock-filter-btn py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 transition">
+            Venduti (<span id="countFilterSold">0</span>)
+          </button>
+          <button type="button" data-filter="all" class="stock-filter-btn py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 transition">
+            Tutti (<span id="countFilterAll">0</span>)
+          </button>
+        </div>
+
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input id="searchInventoryInput" type="text" placeholder="Cerca articolo, brand, nota..."
+            class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-vinted-500/50" />
+        </div>
+      </div>
+
+      <!-- Lista Articoli -->
+      <div id="inventoryList" class="space-y-3"></div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 2: STUDIO FOTO (SENZA COLLAGE)                        -->
+    <!-- ========================================================= -->
+    <section id="tab-photo" class="tab-panel hidden space-y-4">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-extrabold flex items-center gap-1.5">
+              <i data-lucide="camera" class="w-4 h-4 text-vinted-500"></i>
+              Studio Foto Vinted
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Sfondo pulito AI, overlay misure in cm e luce ottimizzata</p>
+          </div>
+          <label class="px-3.5 py-2 rounded-xl bg-vinted-500 hover:bg-vinted-600 text-white text-xs font-bold cursor-pointer shadow-sm flex items-center gap-1.5 active:scale-95 transition">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+            Carica Foto
+            <input id="photoUploadInput" type="file" accept="image/*" class="hidden" />
+          </label>
+        </div>
+
+        <!-- Area Anteprima Canvas -->
+        <div class="relative w-full aspect-square max-h-[420px] mx-auto rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+          <canvas id="photoStudioCanvas" class="max-w-full max-h-full object-contain hidden"></canvas>
+          <div id="photoEmptyPlaceholder" class="text-center p-6 space-y-2">
+            <div class="w-12 h-12 rounded-2xl bg-vinted-500/15 text-vinted-500 flex items-center justify-center mx-auto">
+              <i data-lucide="image-plus" class="w-6 h-6"></i>
+            </div>
+            <p class="text-sm font-bold">Nessuna foto caricata</p>
+            <p class="text-xs text-slate-400 max-w-xs mx-auto">Scatta o scegli una foto dal rullino per scontornare lo sfondo o aggiungere le misure in cm.</p>
+          </div>
+          <div id="photoLoadingOverlay" class="hidden absolute inset-0 bg-slate-950/75 backdrop-blur-sm flex-col items-center justify-center text-white gap-2 p-4 text-center">
+            <div class="w-8 h-8 border-4 border-vinted-400 border-t-transparent rounded-full animate-spin"></div>
+            <p id="photoLoadingText" class="text-xs font-bold">Elaborazione Studio AI in corso...</p>
+          </div>
+        </div>
+
+        <!-- Sotto-schede Strumenti Foto -->
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl">
+          <button type="button" data-phototool="bg" class="photo-tool-btn py-2 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-vinted-600 dark:text-vinted-400 shadow-sm">
+            ✨ Sfondo Studio
+          </button>
+          <button type="button" data-phototool="measures" class="photo-tool-btn py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400">
+            📏 Misure (cm)
+          </button>
+          <button type="button" data-phototool="light" class="photo-tool-btn py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400">
+            ☀️ Luce & Colore
+          </button>
+        </div>
+
+        <!-- TOOL 1: SFONDO STUDIO AI / SCONTORNO -->
+        <div id="phototool-bg" class="photo-tool-panel space-y-3 pt-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Scegli sfondo professionale:</span>
+            <button type="button" id="resetBgBtn" class="text-[11px] font-semibold text-slate-400 hover:text-rose-400">Ripristina originale</button>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2">
+            <button type="button" data-bg="#FFFFFF" class="bg-preset-btn p-2 rounded-xl border-2 border-vinted-500 bg-white text-slate-900 text-[11px] font-bold text-center shadow-sm">
+              <span class="block w-5 h-5 rounded-full bg-white border border-slate-300 mx-auto mb-1"></span>
+              Bianco
+            </button>
+            <button type="button" data-bg="#F1F5F9" class="bg-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 text-slate-800 text-[11px] font-bold text-center">
+              <span class="block w-5 h-5 rounded-full bg-slate-200 border border-slate-300 mx-auto mb-1"></span>
+              Grigio
+            </button>
+            <button type="button" data-bg="#E2E4E1" class="bg-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-stone-200 text-slate-800 text-[11px] font-bold text-center">
+              <span class="block w-5 h-5 rounded-full bg-stone-300 border border-stone-400 mx-auto mb-1"></span>
+              Cemento
+            </button>
+            <button type="button" data-bg="#F5EFE6" class="bg-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-amber-50 text-slate-800 text-[11px] font-bold text-center">
+              <span class="block w-5 h-5 rounded-full bg-amber-100 border border-amber-200 mx-auto mb-1"></span>
+              Beige
+            </button>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <span class="text-slate-500">Tolleranza scontorno locale</span>
+              <span id="bgToleranceVal" class="font-bold">38</span>
+            </div>
+            <input id="bgToleranceSlider" type="range" min="10" max="90" value="38" class="w-full" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="applyLocalCutoutBtn"
+              class="py-2.5 px-3 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 hover:opacity-90 transition">
+              <i data-lucide="scissors" class="w-3.5 h-3.5 text-vinted-400"></i>
+              Scontorno Istantaneo
+            </button>
+            <button type="button" id="applyAiStudioBtn"
+              class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-vinted-500 to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md hover:opacity-95 transition">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              Foto Studio AI
+            </button>
+          </div>
+        </div>
+
+        <!-- TOOL 2: SCHEDA MISURE VISIVA (OVERLAY) -->
+        <div id="phototool-measures" class="photo-tool-panel hidden space-y-3 pt-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Modello misure:</span>
+            <label class="flex items-center gap-1.5 text-xs font-bold text-vinted-500 cursor-pointer">
+              <input id="toggleMeasureOverlay" type="checkbox" class="rounded accent-vinted-500 w-4 h-4" />
+              Mostra frecce sulla foto
+            </label>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" data-mtype="top" class="measure-type-btn py-2 px-3 rounded-xl text-xs font-bold bg-vinted-500 text-white">
+              🧥 Giacca / Felpa
+            </button>
+            <button type="button" data-mtype="pants" class="measure-type-btn py-2 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              👖 Jeans / Pantaloni
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label id="measure1Label" class="block text-[11px] font-semibold text-slate-500 mb-1">Pit-to-Pit / Larghezza (cm)</label>
+              <input id="measure1Input" type="number" placeholder="es. 58" value="58"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold" />
+            </div>
+            <div>
+              <label id="measure2Label" class="block text-[11px] font-semibold text-slate-500 mb-1">Lunghezza Totale (cm)</label>
+              <input id="measure2Input" type="number" placeholder="es. 69" value="69"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold" />
+            </div>
+          </div>
+        </div>
+
+        <!-- TOOL 3: RITOCCO LUCE & COLORE -->
+        <div id="phototool-light" class="photo-tool-panel hidden space-y-3 pt-1">
+          <div class="flex items-center justify-between">
+            <button type="button" id="autoFixLightBtn"
+              class="px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 text-xs font-bold flex items-center gap-1.5">
+              <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
+              Auto-Fix Luce (1 Tap)
+            </button>
+            <button type="button" id="resetLightBtn" class="text-[11px] font-semibold text-slate-400 hover:text-rose-400">Reset</button>
+          </div>
+
+          <div class="space-y-2.5 text-xs">
+            <div>
+              <div class="flex justify-between mb-0.5"><span>Luminosità</span><strong id="brightVal">100%</strong></div>
+              <input id="brightSlider" type="range" min="70" max="145" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-0.5"><span>Contrasto</span><strong id="contrastVal">100%</strong></div>
+              <input id="contrastSlider" type="range" min="75" max="145" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between mb-0.5"><span>Vividezza Colori</span><strong id="satVal">100%</strong></div>
+              <input id="satSlider" type="range" min="70" max="145" value="100" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- AZIONI SALVATAGGIO FOTO -->
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2.5">
+          <button type="button" id="downloadPhotoBtn"
+            class="py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            Salva Foto (JPG)
+          </button>
+          <button type="button" id="attachPhotoToStockBtn"
+            class="py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="link" class="w-4 h-4 text-vinted-500"></i>
+            Associa a Stock
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 3: STRUMENTI & ANNUNCI                                -->
+    <!-- ========================================================= -->
+    <section id="tab-tools" class="tab-panel hidden space-y-4">
+      <!-- 1. Generatore Annuncio SEO & Risposte Rapide -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-extrabold flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-4 h-4 text-vinted-500"></i>
+            Generatore Annuncio SEO
+          </h2>
+          <select id="seoStockSelect" class="max-w-[165px] px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold truncate">
+            <option value="">-- Da Stock --</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <input id="seoBrandModel" type="text" placeholder="Articolo (es. Levi's 501)"
+            class="col-span-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold" />
+          <input id="seoSize" type="text" placeholder="Taglia (es. L / W32 L32)"
+            class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs" />
+          <input id="seoCondition" type="text" placeholder="Stato (es. Ottime 9/10)" value="Ottime condizioni (9/10)"
+            class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs" />
+          <input id="seoMeasurements" type="text" placeholder="Misure (es. Pit 58cm, Lung 69cm)"
+            class="col-span-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="generateSeoInstantBtn"
+            class="py-2.5 px-3 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-1.5">
+            ⚡ Template Rapido
+          </button>
+          <button type="button" id="generateSeoAiBtn"
+            class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-vinted-500 to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm">
+            ✨ Genera con AI
+          </button>
+        </div>
+
+        <!-- Output Titolo e Descrizione -->
+        <div class="space-y-2 pt-1">
+          <div class="bg-slate-50 dark:bg-slate-800/70 p-3 rounded-xl border border-slate-200/70 dark:border-slate-700/70 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-vinted-600 dark:text-vinted-400">TITOLO SEO (<span id="seoTitleLen">0</span>/65)</span>
+              <button type="button" data-copy-target="seoTitleOut" class="copy-btn px-2 py-1 rounded-lg bg-vinted-500/15 text-vinted-600 dark:text-vinted-400 text-[11px] font-bold">
+                Copia
+              </button>
+            </div>
+            <p id="seoTitleOut" class="text-xs font-bold select-all text-slate-800 dark:text-slate-100">Compila i campi sopra e genera l'annuncio...</p>
+          </div>
+
+          <div class="bg-slate-50 dark:bg-slate-800/70 p-3 rounded-xl border border-slate-200/70 dark:border-slate-700/70 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-vinted-600 dark:text-vinted-400">DESCRIZIONE PRONTA</span>
+              <button type="button" data-copy-target="seoDescOut" class="copy-btn px-2 py-1 rounded-lg bg-vinted-500/15 text-vinted-600 dark:text-vinted-400 text-[11px] font-bold">
+                Copia
+              </button>
+            </div>
+            <pre id="seoDescOut" class="text-xs whitespace-pre-wrap font-sans select-all text-slate-700 dark:text-slate-200 leading-relaxed">La descrizione formattata apparirà qui.</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Risposte Rapide Trattative -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+        <h2 class="text-sm font-extrabold flex items-center gap-1.5">
+          <i data-lucide="message-square" class="w-4 h-4 text-emerald-500"></i>
+          Risposte Rapide Acquirenti (1 Tap)
+        </h2>
+        <div class="space-y-2 text-xs">
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 flex items-start justify-between gap-2">
+            <div>
+              <span class="font-bold text-amber-500 block mb-0.5">🛡️ Offerta troppo bassa</span>
+              <p id="replyLowball" class="text-slate-600 dark:text-slate-300">Ciao! Grazie per l'offerta ma il prezzo è già molto competitivo per le condizioni dell'articolo. Posso venirti incontro giusto di un paio di euro se concludi oggi 😊</p>
+            </div>
+            <button type="button" data-copy-target="replyLowball" class="copy-btn shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 font-bold text-[11px]">Copia</button>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 flex items-start justify-between gap-2">
+            <div>
+              <span class="font-bold text-vinted-500 block mb-0.5">🤝 Controfferta gentile</span>
+              <p id="replyCounter" class="text-slate-600 dark:text-slate-300">Ciao! Ti ringrazio per l'interesse. A quella cifra non riesco a scendere, ma se vuoi ti mando subito l'offerta al mio prezzo minimo così spedisco già oggi!</p>
+            </div>
+            <button type="button" data-copy-target="replyCounter" class="copy-btn shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 font-bold text-[11px]">Copia</button>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 flex items-start justify-between gap-2">
+            <div>
+              <span class="font-bold text-emerald-500 block mb-0.5">🚀 Spedizione veloce</span>
+              <p id="replyShip" class="text-slate-600 dark:text-slate-300">Ciao! Sì, l'articolo è disponibile e pronto. Se acquisti oggi preparo il pacco con cura e spedisco entro 24 ore (InPost / Poste / BRT) 📦</p>
+            </div>
+            <button type="button" data-copy-target="replyShip" class="copy-btn shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 font-bold text-[11px]">Copia</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Calcolatore Prezzo Listino & Margine Trattativa -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <h2 class="text-sm font-extrabold flex items-center gap-1.5">
+          <i data-lucide="calculator" class="w-4 h-4 text-indigo-500"></i>
+          Calcolatore Prezzo Listino (con Sconto)
+        </h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Tuo Costo Totale (€)</label>
+            <input id="calcListCost" type="number" step="0.5" value="22"
+              class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Guadagno Minimo (€)</label>
+            <input id="calcListDesiredMargin" type="number" step="1" value="20"
+              class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold" />
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/70">
+            <span class="text-[10px] text-slate-400 block">Minimo Netto</span>
+            <strong id="outMinFloor" class="text-sm font-extrabold text-emerald-500">42,00 €</strong>
+          </div>
+          <div class="p-2.5 rounded-xl bg-vinted-500/10 border border-vinted-500/25">
+            <span class="text-[10px] text-vinted-600 dark:text-vinted-400 block font-bold">Pubblica (+15%)</span>
+            <strong id="outList15" class="text-sm font-extrabold text-vinted-600 dark:text-vinted-400">49,50 €</strong>
+          </div>
+          <div class="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25">
+            <span class="text-[10px] text-indigo-500 block font-bold">Pubblica (+20%)</span>
+            <strong id="outList20" class="text-sm font-extrabold text-indigo-500">52,50 €</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Check-list Autenticità Integrata -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-extrabold flex items-center gap-1.5">
+            <i data-lucide="badge-check" class="w-4 h-4 text-vinted-500"></i>
+            Check-list Autenticità Pacco
+          </h2>
+          <select id="authBrandSelect" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">
+            <option value="levis">👖 Levi's 501 / Giacche</option>
+            <option value="carhartt">🧥 Carhartt WIP / USA</option>
+            <option value="tnf">🏔️ The North Face</option>
+            <option value="nintendo">🎮 Nintendo / GameBoy</option>
+            <option value="sneakers">👟 Sneakers (Air Max / NB)</option>
+          </select>
+        </div>
+        <div id="authChecklistItems" class="space-y-2 text-xs"></div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 4: SPESE EXTRA & ANALYTICS                            -->
+    <!-- ========================================================= -->
+    <section id="tab-analytics" class="tab-panel hidden space-y-4">
+      <!-- Registro Spese Extra -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-extrabold flex items-center gap-1.5">
+              <i data-lucide="receipt" class="w-4 h-4 text-rose-500"></i>
+              Registro Spese Extra
+            </h2>
+            <p class="text-[11px] text-slate-500">Buste spedizione, lavanderia, boost Vinted</p>
+          </div>
+          <span id="totalExpensesBadge" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-500/15 text-rose-500">
+            -0,00 €
+          </span>
+        </div>
+
+        <form id="expenseForm" class="grid grid-cols-12 gap-2">
+          <input id="expDesc" type="text" required placeholder="es. 20 buste corriere, boost..."
+            class="col-span-6 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs" />
+          <input id="expAmount" type="number" step="0.01" min="0.01" required placeholder="€"
+            class="col-span-3 px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold" />
+          <button type="submit" class="col-span-3 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold">
+            + Aggiungi
+          </button>
+        </form>
+
+        <div id="expensesList" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+      </div>
+
+      <!-- Performance per Categoria -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <h2 class="text-sm font-extrabold flex items-center gap-1.5">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-vinted-500"></i>
+          Guadagno & ROI per Categoria
+        </h2>
+        <div id="categoryStatsContainer" class="space-y-3"></div>
+      </div>
+
+      <!-- Backup & Esportazione Dati -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <h2 class="text-sm font-extrabold flex items-center gap-1.5">
+          <i data-lucide="hard-drive" class="w-4 h-4 text-indigo-500"></i>
+          Backup & Esportazione Dati
+        </h2>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+          Salva una copia di sicurezza su iCloud Drive / File iPhone per non perdere mai lo storico.
+        </p>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button type="button" id="exportCsvBtn"
+            class="py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold flex items-center justify-center gap-1.5">
+            📊 Scarica CSV (Excel)
+          </button>
+          <button type="button" id="exportJsonBtn"
+            class="py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold flex items-center justify-center gap-1.5">
+            💾 Backup JSON
+          </button>
+        </div>
+        <label class="block w-full py-2.5 px-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer hover:border-vinted-500">
+          ⬆️ Ripristina da Backup JSON
+          <input id="importJsonInput" type="file" accept=".json" class="hidden" />
+        </label>
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between text-xs">
+          <button type="button" id="loadDemoDataBtn" class="text-vinted-500 font-semibold">Carica dati demo</button>
+          <button type="button" id="resetDataBtn" class="text-rose-500 font-semibold">Svuota tutto</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================= -->
+  <!-- BOTTOM TAB BAR FISSA (4 SCHEDE PRINCIPALI)                -->
+  <!-- ========================================================= -->
+  <nav aria-label="Navigazione principale" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 pb-safe">
+    <div class="max-w-2xl mx-auto px-2 py-1.5 grid grid-cols-4 gap-1">
+      <button type="button" data-tab="dashboard" class="bottom-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-vinted-600 dark:text-vinted-400 font-bold">
+        <i data-lucide="package" class="w-5 h-5 mb-0.5"></i>
+        <span class="text-[10px]">Stock</span>
+      </button>
+      <button type="button" data-tab="photo" class="bottom-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 font-medium">
+        <i data-lucide="camera" class="w-5 h-5 mb-0.5"></i>
+        <span class="text-[10px]">Studio Foto</span>
+      </button>
+      <button type="button" data-tab="tools" class="bottom-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 font-medium">
+        <i data-lucide="sparkles" class="w-5 h-5 mb-0.5"></i>
+        <span class="text-[10px]">Annunci & AI</span>
+      </button>
+      <button type="button" data-tab="analytics" class="bottom-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 font-medium">
+        <i data-lucide="pie-chart" class="w-5 h-5 mb-0.5"></i>
+        <span class="text-[10px]">Spese & Dati</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========================================================= -->
+  <!-- MODALE 1: NUOVO / MODIFICA ACQUISTO (+ INCOLLA DA BOT)    -->
+  <!-- ========================================================= -->
+  <div id="purchaseModal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xl max-h-[92vh] overflow-y-auto animate-card space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+        <h3 id="purchaseModalTitle" class="text-base font-extrabold">➕ Nuovo Acquisto</h3>
+        <button type="button" class="close-modal p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>
+      </div>
+
+      <!-- Switch Modalità: Manuale vs Incolla da Bot -->
+      <div class="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+        <button type="button" id="modeManualBtn" class="py-2 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-vinted-600 dark:text-vinted-400 shadow-sm">
+          ✍️ Manuale
+        </button>
+        <button type="button" id="modeBotBtn" class="py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center justify-center gap-1">
+          🤖 Incolla da Bot
+        </button>
+      </div>
+
+      <!-- Box Incolla da Bot Telegram -->
+      <div id="botPasteBox" class="hidden space-y-2 bg-vinted-500/10 p-3 rounded-2xl border border-vinted-500/25">
+        <label class="block text-[11px] font-bold text-vinted-700 dark:text-vinted-300">
+          Incolla qui il messaggio di notifica del Bot Vinted Radar:
+        </label>
+        <textarea id="botRawTextarea" rows="4" placeholder="🔥 AFFARE RILEVATO SU VINTED&#10;📦 Modello AI: Giacca Carhartt&#10;📝 Titolo: Giacca lavoro vintage&#10;💶 Prezzo annuncio: 22.00 €&#10;📈 Rivendita stimata: 60 €"
+          class="w-full p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-vinted-500"></textarea>
+        <button type="button" id="parseBotTextBtn"
+          class="w-full py-2 rounded-xl bg-vinted-500 text-white text-xs font-bold shadow-sm">
+          ⚡ Compila Campi Automaticamente
+        </button>
+      </div>
+
+      <form id="purchaseForm" class="space-y-3">
+        <input type="hidden" id="editItemId" />
+        <input type="hidden" id="itemPhotoDataUrl" />
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Titolo / Modello Articolo *</label>
+          <input id="fTitle" type="text" required placeholder="es. Levi's 501 Vintage Made in USA"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Categoria</label>
+            <select id="fCategory" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
+              <option value="Abbigliamento">🧥 Abbigliamento</option>
+              <option value="Sneakers">👟 Sneakers</option>
+              <option value="Retro-Gaming/Elettronica">🎮 Retro-Gaming/Tech</option>
+              <option value="Accessori">🎒 Accessori</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Data Acquisto</label>
+            <input id="fDate" type="date" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+          </div>
+        </div>
+
+        <!-- Calcolo Costo Reale -->
+        <div class="bg-slate-50 dark:bg-slate-800/70 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2.5">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Prezzo Annuncio (€) *</label>
+              <input id="fBuyPrice" type="number" step="0.01" min="0" required placeholder="20.00"
+                class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Spedizione (€)</label>
+              <input id="fShipping" type="number" step="0.01" min="0" value="4.50"
+                class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold" />
+            </div>
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-500">
+            <span>Protezione Vinted (5% + 0,70€):</span>
+            <strong id="previewFee">0,70 €</strong>
+          </div>
+          <div class="flex justify-between text-sm pt-1 border-t border-slate-200/70 dark:border-slate-700">
+            <span class="font-bold">Costo Totale Reale:</span>
+            <strong id="previewTotalCost" class="font-extrabold text-amber-500">5,20 €</strong>
+          </div>
+        </div>
+
+        <!-- Rivendita Target -->
+        <div class="bg-emerald-500/10 p-3.5 rounded-2xl border border-emerald-500/25 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-xs font-bold text-emerald-700 dark:text-emerald-400">Rivendita Stimata (€) *</label>
+            <input id="fTargetPrice" type="number" step="0.01" min="0" required placeholder="55.00"
+              class="w-32 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-emerald-500/40 text-sm font-extrabold text-right" />
+          </div>
+          <div class="flex justify-between text-xs">
+            <span>Margine Netto Previsto:</span>
+            <strong id="previewMargin" class="font-extrabold text-emerald-500">+0,00 € (0%)</strong>
+          </div>
+        </div>
+
+        <!-- Foto Articolo -->
+        <div class="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200/70 dark:border-slate-800">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <img id="fPhotoThumb" src="" alt="" class="w-10 h-10 rounded-lg object-cover hidden bg-slate-200" />
+            <span id="fPhotoStatus" class="text-xs text-slate-500 truncate">Nessuna foto allegata</span>
+          </div>
+          <label class="shrink-0 px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-xs font-bold cursor-pointer">
+            📷 Foto
+            <input id="fPhotoInput" type="file" accept="image/*" class="hidden" />
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Note / Taglia / Misure</label>
+          <input id="fNotes" type="text" placeholder="es. Taglia L, Pit 58cm, ottimo stato"
+            class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs" />
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-vinted-500 hover:bg-vinted-600 text-white font-bold text-sm shadow-lg shadow-vinted-500/25">
+          💾 Salva Articolo
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODALE 2: SEGNA COME VENDUTO                              -->
+  <!-- ========================================================= -->
+  <div id="sellModal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xl animate-card space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="text-base font-extrabold">🎉 Registra Vendita</h3>
+        <button type="button" class="close-modal p-2 rounded-xl text-slate-400">✕</button>
+      </div>
+      <form id="sellForm" class="space-y-3.5">
+        <input type="hidden" id="sellItemId" />
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70">
+          <p id="sellTitleLabel" class="text-sm font-bold truncate"></p>
+          <p class="text-xs text-slate-500 mt-0.5">Costo totale acquisto: <strong id="sellCostLabel">0,00 €</strong></p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold mb-1">Prezzo Venduto (€) *</label>
+            <input id="sSoldPrice" type="number" step="0.01" min="0" required
+              class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-extrabold" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Data Vendita</label>
+            <input id="sSoldDate" type="date"
+              class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+          </div>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between">
+          <div>
+            <span class="text-xs block">Profitto Netto Reale</span>
+            <span id="sRoiPreview" class="text-[11px] font-bold text-emerald-500">ROI: 0%</span>
+          </div>
+          <span id="sProfitPreview" class="text-xl font-extrabold text-emerald-500">+0,00 €</span>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-lg">
+          ✅ Conferma Vendita
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODALE 3: ASSOCIA FOTO A UN ARTICOLO IN STOCK             -->
+  <!-- ========================================================= -->
+  <div id="attachStockModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between">
+        <h4 class="text-sm font-extrabold">Associa foto a un articolo</h4>
+        <button type="button" class="close-modal text-slate-400">✕</button>
+      </div>
+      <div id="attachStockList" class="space-y-2 max-h-64 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODALE CONFERMA PERSONALIZZATA (NO confirm())             -->
+  <!-- ========================================================= -->
+  <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xl space-y-4">
+      <h4 id="confirmTitle" class="text-base font-extrabold">Confermi?</h4>
+      <p id="confirmMessage" class="text-xs text-slate-500 dark:text-slate-400"></p>
+      <div class="flex gap-2.5">
+        <button id="confirmCancelBtn" type="button" class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">Annulla</button>
+        <button id="confirmOkBtn" type="button" class="flex-1 py-2.5 rounded-xl bg-rose-500 text-white text-xs font-bold">Conferma</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold shadow-xl"></div>
+
+  <script>
+    /**
+     * Vinted Resell Tracker Pro
+     * Single-file App completa con Magazzino, Studio Foto Canvas + Gemini AI,
+     * Generatore Annunci SEO, Check-list Autenticità e Spese Extra.
+     */
+    const STORAGE_ITEMS_KEY = 'vrt_pro_items_v1';
+    const STORAGE_EXPENSES_KEY = 'vrt_pro_expenses_v1';
+    const STORAGE_THEME_KEY = 'vrt_pro_theme_v1';
+    const apiKey = ""; // Chiave fornita automaticamente dal runtime
+
+    let items = [];
+    let expenses = [];
+    let stockFilter = 'stock'; // 'stock' | 'sold' | 'all'
+    let searchQuery = '';
+    let confirmCallback = null;
+
+    // --- STATO STUDIO FOTO ---
+    let studioOriginalImg = null;
+    let studioProcessedImg = null; // Immagine scontornata o generata da AI
+    let studioBgColor = '#FFFFFF';
+    let studioMeasureType = 'top'; // 'top' | 'pants'
+    let studioShowMeasures = false;
+
+    // --- UTILITY ---
+    const euro = (n) => (Number(n) || 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    const signedEuro = (n) => ((Number(n) || 0) > 0 ? '+' : '') + euro(n);
+    const todayStr = () => new Date().toISOString().split('T')[0];
+    const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    const daysInStock = (dateStr) => {
+      if (!dateStr) return 0;
+      const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+      return Math.max(0, diff);
+    };
+
+    const showToast = (msg) => {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.add('hidden'), 2600);
+    };
+
+    const copyText = (text) => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('📋 Copiato negli appunti!');
+      } catch (e) {
+        showToast('⚠️ Impossibile copiare');
+      }
+      document.body.removeChild(ta);
+    };
+
+    // Calcolo commissione Vinted: 5% + 0,70 € + spedizione
+    const calcFee = (p) => (p > 0 ? Number((p * 0.05 + 0.70).toFixed(2)) : 0);
+    const calcTotalCost = (p, ship) => Number(((Number(p) || 0) + calcFee(Number(p) || 0) + (Number(ship) || 0)).toFixed(2));
+
+    // --- STORAGE ---
+    const loadState = () => {
+      try {
+        items = JSON.parse(localStorage.getItem(STORAGE_ITEMS_KEY) || '[]');
+        if (!Array.isArray(items)) items = [];
+      } catch { items = []; }
+      try {
+        expenses = JSON.parse(localStorage.getItem(STORAGE_EXPENSES_KEY) || '[]');
+        if (!Array.isArray(expenses)) expenses = [];
+      } catch { expenses = []; }
+    };
+
+    const saveState = () => {
+      try {
+        localStorage.setItem(STORAGE_ITEMS_KEY, JSON.stringify(items));
+        localStorage.setItem(STORAGE_EXPENSES_KEY, JSON.stringify(expenses));
+      } catch (e) {
+        showToast('⚠️ Memoria piena: riduci dimensione foto');
+      }
+      renderAll();
+    };
+
+    // --- CONFERMA PERSONALIZZATA ---
+    const askConfirm = (title, message, cb) => {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      confirmCallback = cb;
+      const m = document.getElementById('confirmModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    };
+
+    const closeConfirm = () => {
+      const m = document.getElementById('confirmModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+      confirmCallback = null;
+    };
+
+    // --- RENDER DASHBOARD & KPI ---
+    const renderDashboard = () => {
+      const stockItems = items.filter((i) => i.status === 'stock');
+      const soldItems = items.filter((i) => i.status === 'sold');
+      const currentYear = String(new Date().getFullYear());
+
+      const totalExtraExpenses = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+      const stockCapital = stockItems.reduce((s, i) => s + (Number(i.totalCost) || 0), 0);
+      const potentialProfit = stockItems.reduce((s, i) => s + ((Number(i.targetPrice) || 0) - (Number(i.totalCost) || 0)), 0);
+
+      const soldRevenueAll = soldItems.reduce((s, i) => s + (Number(i.soldPrice) || 0), 0);
+      const soldCostAll = soldItems.reduce((s, i) => s + (Number(i.totalCost) || 0), 0);
+      const netProfitReal = soldRevenueAll - soldCostAll - totalExtraExpenses;
+
+      const totalBasis = soldCostAll + totalExtraExpenses;
+      const roiPct = totalBasis > 0 ? Math.round((netProfitReal / totalBasis) * 100) : 0;
+
+      // Dati anno solare per DAC7
+      const yearSold = soldItems.filter((i) => (i.soldDate || '').startsWith(currentYear));
+      const yearRev = yearSold.reduce((s, i) => s + (Number(i.soldPrice) || 0), 0);
+
+      const netEl = document.getElementById('kpiNetProfit');
+      netEl.textContent = signedEuro(netProfitReal);
+      netEl.className = `text-3xl font-extrabold mt-1 tracking-tight ${netProfitReal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      const roiEl = document.getElementById('kpiRoiBadge');
+      roiEl.textContent = `ROI ${roiPct > 0 ? '+' : ''}${roiPct}%`;
+      roiEl.className = `px-2.5 py-1 rounded-xl text-xs font-bold border ${
+        roiPct >= 0 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+      }`;
+
+      document.getElementById('kpiTotalRevenue').textContent = euro(yearRev);
+      document.getElementById('kpiPotentialProfit').textContent = signedEuro(potentialProfit);
+      document.getElementById('kpiActiveCapital').textContent = euro(stockCapital);
+      document.getElementById('kpiStockSummary').textContent = `${stockItems.length} articoli in vendita`;
+      document.getElementById('kpiSoldCount').textContent = soldItems.length;
+      document.getElementById('kpiExtraExpensesSummary').textContent = `Spese extra: -${euro(totalExtraExpenses)}`;
+
+      // DAC7
+      document.getElementById('dac7Year').textContent = currentYear;
+      document.getElementById('dac7SalesLabel').textContent = `${yearSold.length} / 30`;
+      document.getElementById('dac7RevLabel').textContent = `${Math.round(yearRev)}€ / 2.000€`;
+      const sPct = Math.min(100, Math.round((yearSold.length / 30) * 100));
+      const rPct = Math.min(100, Math.round((yearRev / 2000) * 100));
+      document.getElementById('dac7SalesBar').style.width = `${sPct}%`;
+      document.getElementById('dac7RevBar').style.width = `${rPct}%`;
+
+      // Conteggi filtri
+      document.getElementById('countFilterStock').textContent = stockItems.length;
+      document.getElementById('countFilterSold').textContent = soldItems.length;
+      document.getElementById('countFilterAll').textContent = items.length;
+
+      // Popola select SEO
+      const seoSel = document.getElementById('seoStockSelect');
+      const prevSel = seoSel.value;
+      seoSel.innerHTML = `<option value="">-- Da Stock --</option>` +
+        stockItems.map((i) => `<option value="${i.id}">${esc(i.title)}</option>`).join('');
+      seoSel.value = prevSel;
+
+      renderInventoryList();
+    };
+
+    const renderInventoryList = () => {
+      const list = document.getElementById('inventoryList');
+      const filtered = items
+        .filter((i) => stockFilter === 'all' || i.status === stockFilter)
+        .filter((i) => {
+          if (!searchQuery) return true;
+          const q = searchQuery.toLowerCase();
+          return (i.title || '').toLowerCase().includes(q) || (i.category || '').toLowerCase().includes(q) || (i.notes || '').toLowerCase().includes(q);
+        })
+        .sort((a, b) => new Date(b.soldDate || b.buyDate || 0) - new Date(a.soldDate || a.buyDate || 0));
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 text-center border border-slate-200/80 dark:border-slate-800 space-y-2">
+            <div class="text-3xl">📦</div>
+            <p class="text-sm font-bold">Nessun articolo trovato</p>
+            <p class="text-xs text-slate-400">Tocca "+ Nuovo Acquisto" o "Da Bot" per registrare un articolo.</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map((item) => {
+        const isStock = item.status === 'stock';
+        const days = daysInStock(item.buyDate);
+
+        // Badge Aging Stock (>14gg arancione, >21gg rosso)
+        let agingBadge = `<span class="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500">⏱ ${days}g</span>`;
+        if (isStock && days >= 21) {
+          agingBadge = `<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-500/15 text-rose-500 border border-rose-500/25">🔥 ${days}g · Ricarica o -10%</span>`;
+        } else if (isStock && days >= 14) {
+          agingBadge = `<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25">⚠️ ${days}g · Valuta ribasso</span>`;
+        }
+
+        const thumbHtml = item.photo
+          ? `<img src="${item.photo}" alt="" class="w-14 h-14 rounded-xl object-cover shrink-0 border border-slate-200 dark:border-slate-700" />`
+          : `<div class="w-14 h-14 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg shrink-0">🏷️</div>`;
+
+        if (isStock) {
+          const estMargin = (Number(item.targetPrice) || 0) - (Number(item.totalCost) || 0);
+          return `
+            <article class="animate-card bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+              <div class="flex items-start gap-3">
+                ${thumbHtml}
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-vinted-500/10 text-vinted-600 dark:text-vinted-400">${esc(item.category)}</span>
+                    ${agingBadge}
+                  </div>
+                  <h3 class="text-sm font-bold mt-1 truncate">${esc(item.title)}</h3>
+                  ${item.notes ? `<p class="text-[11px] text-slate-400 truncate mt-0.5">${esc(item.notes)}</p>` : ''}
+                </div>
+                <button type="button" onclick="editItem('${item.id}')" class="p-1.5 text-slate-400 hover:text-vinted-500" aria-label="Modifica">✏️</button>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                <div><span class="text-[10px] text-slate-400 block">Costo Reale</span><strong>${euro(item.totalCost)}</strong></div>
+                <div><span class="text-[10px] text-slate-400 block">Target</span><strong class="text-vinted-500">${euro(item.targetPrice)}</strong></div>
+                <div class="text-right"><span class="text-[10px] text-slate-400 block">Margine Est.</span><strong class="${estMargin >= 0 ? 'text-emerald-500' : 'text-rose-500'}">${signedEuro(estMargin)}</strong></div>
+              </div>
+
+              <div class="grid grid-cols-4 gap-1.5 pt-1">
+                <button type="button" onclick="openSellModal('${item.id}')"
+                  class="col-span-2 py-2 px-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
+                  ✅ Venduto
+                </button>
+                <button type="button" onclick="sendToSeoGenerator('${item.id}')"
+                  class="py-2 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold" title="Genera Annuncio">
+                  📝 SEO
+                </button>
+                <button type="button" onclick="deleteItem('${item.id}')"
+                  class="py-2 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-rose-500 text-[11px] font-bold" title="Elimina">
+                  🗑️
+                </button>
+              </div>
+            </article>`;
+        } else {
+          const realProfit = (Number(item.soldPrice) || 0) - (Number(item.totalCost) || 0);
+          const itemRoi = item.totalCost > 0 ? Math.round((realProfit / item.totalCost) * 100) : 0;
+          return `
+            <article class="animate-card bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+              <div class="flex items-start gap-3">
+                ${thumbHtml}
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/15 text-emerald-500">VENDUTO · ${esc(item.soldDate || '')}</span>
+                  </div>
+                  <h3 class="text-sm font-bold mt-1 truncate">${esc(item.title)}</h3>
+                </div>
+                <button type="button" onclick="deleteItem('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-500">🗑️</button>
+              </div>
+              <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+                <div><span class="text-[10px] text-slate-400 block">Speso Tot.</span><strong>${euro(item.totalCost)}</strong></div>
+                <div><span class="text-[10px] text-slate-400 block">Venduto a</span><strong>${euro(item.soldPrice)}</strong></div>
+                <div class="text-right"><span class="text-[10px] text-slate-400 block">Netto (${itemRoi}%)</span><strong class="${realProfit >= 0 ? 'text-emerald-500' : 'text-rose-500'}">${signedEuro(realProfit)}</strong></div>
+              </div>
+            </article>`;
+        }
+      }).join('');
+    };
+
+    // --- STUDIO FOTO CANVAS & AI ---
+    const renderStudioCanvas = () => {
+      const canvas = document.getElementById('photoStudioCanvas');
+      const placeholder = document.getElementById('photoEmptyPlaceholder');
+      const activeImg = studioProcessedImg || studioOriginalImg;
+
+      if (!activeImg) {
+        canvas.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        return;
+      }
+
+      placeholder.classList.add('hidden');
+      canvas.classList.remove('hidden');
+
+      const maxDim = 900;
+      let w = activeImg.width;
+      let h = activeImg.height;
+      if (w > maxDim || h > maxDim) {
+        const ratio = Math.min(maxDim / w, maxDim / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+
+      // 1. Sfondo studio (visibile se l'immagine ha trasparenza)
+      ctx.fillStyle = studioBgColor;
+      ctx.fillRect(0, 0, w, h);
+
+      // 2. Filtri luce/colore
+      const br = document.getElementById('brightSlider').value;
+      const ct = document.getElementById('contrastSlider').value;
+      const st = document.getElementById('satSlider').value;
+      ctx.filter = `brightness(${br}%) contrast(${ct}%) saturate(${st}%)`;
+      ctx.drawImage(activeImg, 0, 0, w, h);
+      ctx.filter = 'none';
+
+      // 3. Overlay Misure Visive (Frecce + Badge)
+      if (studioShowMeasures) {
+        const m1 = document.getElementById('measure1Input').value || '58';
+        const m2 = document.getElementById('measure2Input').value || '69';
+
+        const drawArrow = (x1, y1, x2, y2, label) => {
+          ctx.save();
+          ctx.strokeStyle = '#09b1ba';
+          ctx.lineWidth = Math.max(4, w * 0.007);
+          ctx.shadowColor = 'rgba(0,0,0,0.45)';
+          ctx.shadowBlur = 6;
+
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+
+          // Punte freccia
+          const angle = Math.atan2(y2 - y1, x2 - x1);
+          const headLen = Math.max(14, w * 0.025);
+          [
+            [x1, y1, angle],
+            [x2, y2, angle + Math.PI],
+          ].forEach(([px, py, ang]) => {
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(px + headLen * Math.cos(ang - 0.45), py + headLen * Math.sin(ang - 0.45));
+            ctx.moveTo(px, py);
+            ctx.lineTo(px + headLen * Math.cos(ang + 0.45), py + headLen * Math.sin(ang + 0.45));
+            ctx.stroke();
+          });
+
+          // Badge testo centrale
+          const midX = (x1 + x2) / 2;
+          const midY = (y1 + y2) / 2;
+          const fontSize = Math.max(18, Math.round(w * 0.036));
+          ctx.font = `800 ${fontSize}px Inter, sans-serif`;
+          const textW = ctx.measureText(label).width;
+          const padX = fontSize * 0.65;
+          const boxH = fontSize * 1.65;
+
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.roundRect(midX - textW / 2 - padX, midY - boxH / 2, textW + padX * 2, boxH, 12);
+          ctx.fill();
+
+          ctx.strokeStyle = '#09b1ba';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(label, midX, midY);
+          ctx.restore();
+        };
+
+        if (studioMeasureType === 'top') {
+          // Pit-to-pit orizzontale + Lunghezza verticale
+          drawArrow(w * 0.22, h * 0.44, w * 0.78, h * 0.44, `↔ ${m1} cm`);
+          drawArrow(w * 0.34, h * 0.16, w * 0.34, h * 0.84, `↕ ${m2} cm`);
+        } else {
+          // Vita orizzontale + Lunghezza gamba
+          drawArrow(w * 0.28, h * 0.18, w * 0.72, h * 0.18, `Vita ${m1} cm`);
+          drawArrow(w * 0.62, h * 0.18, w * 0.62, h * 0.88, `Lung. ${m2} cm`);
+        }
+      }
+    };
+
+    // Algoritmo Flood-Fill Scontorno Istantaneo dai bordi
+    const runLocalCutout = () => {
+      if (!studioOriginalImg) return showToast('⚠️ Carica prima una foto');
+      const tol = parseInt(document.getElementById('bgToleranceSlider').value, 10) || 38;
+      const off = document.createElement('canvas');
+      off.width = studioOriginalImg.width;
+      off.height = studioOriginalImg.height;
+      const ctx = off.getContext('2d');
+      ctx.drawImage(studioOriginalImg, 0, 0);
+
+      const imgData = ctx.getImageData(0, 0, off.width, off.height);
+      const d = imgData.data;
+      const w = off.width;
+      const h = off.height;
+
+      // Campiona colore medio dai 4 angoli
+      const corners = [
+        [0, 0],
+        [w - 1, 0],
+        [0, h - 1],
+        [w - 1, h - 1],
+      ];
+      let r0 = 0, g0 = 0, b0 = 0;
+      corners.forEach(([cx, cy]) => {
+        const idx = (cy * w + cx) * 4;
+        r0 += d[idx]; g0 += d[idx + 1]; b0 += d[idx + 2];
+      });
+      r0 /= 4; g0 /= 4; b0 /= 4;
+
+      const visited = new Uint8Array(w * h);
+      const stack = [];
+      for (let x = 0; x < w; x++) {
+        stack.push(x, (h - 1) * w + x);
+      }
+      for (let y = 0; y < h; y++) {
+        stack.push(y * w, y * w + (w - 1));
+      }
+
+      const maxDistSq = (tol * 1.8) * (tol * 1.8);
+      while (stack.length > 0) {
+        const pos = stack.pop();
+        if (visited[pos]) continue;
+        visited[pos] = 1;
+        const idx = pos * 4;
+        const dr = d[idx] - r0;
+        const dg = d[idx + 1] - g0;
+        const db = d[idx + 2] - b0;
+        if (dr * dr + dg * dg + db * db <= maxDistSq) {
+          d[idx + 3] = 0; // Trasparente
+          const x = pos % w;
+          const y = (pos - x) / w;
+          if (x > 0 && !visited[pos - 1]) stack.push(pos - 1);
+          if (x < w - 1 && !visited[pos + 1]) stack.push(pos + 1);
+          if (y > 0 && !visited[pos - w]) stack.push(pos - w);
+          if (y < h - 1 && !visited[pos + w]) stack.push(pos + w);
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+      const resImg = new Image();
+      resImg.onload = () => {
+        studioProcessedImg = resImg;
+        renderStudioCanvas();
+        showToast('✂️ Sfondo scontornato!');
+      };
+      resImg.src = off.toDataURL('image/png');
+    };
+
+    // Foto Studio AI tramite Gemini Image Editing (con fallback locale)
+    const runAiStudioPhoto = async () => {
+      if (!studioOriginalImg) return showToast('⚠️ Carica prima una foto');
+      const overlay = document.getElementById('photoLoadingOverlay');
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+
+      try {
+        const tmp = document.createElement('canvas');
+        const scale = Math.min(1, 768 / Math.max(studioOriginalImg.width, studioOriginalImg.height));
+        tmp.width = Math.round(studioOriginalImg.width * scale);
+        tmp.height = Math.round(studioOriginalImg.height * scale);
+        tmp.getContext('2d').drawImage(studioOriginalImg, 0, 0, tmp.width, tmp.height);
+        const base64Data = tmp.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+        const bgNames = {
+          '#FFFFFF': 'pure clean white studio background',
+          '#F1F5F9': 'minimalist soft light grey studio background',
+          '#E2E4E1': 'clean light concrete studio background',
+          '#F5EFE6': 'warm off-white beige studio background',
+        };
+        const bgDesc = bgNames[studioBgColor] || 'clean light studio background';
+
+        const payload = {
+          contents: [{
+            role: 'user',
+            parts: [
+              { text: `Isolate the main clothing or product item cleanly on a ${bgDesc} with soft natural studio lighting, keeping every logo, stitching and color 100% authentic and unchanged.` },
+              { inlineData: { mimeType: 'image/jpeg', data: base64Data } },
+            ],
+          }],
+          generationConfig: { responseModalities: ['IMAGE'] },
+        };
+
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!resp.ok) throw new Error('AI fallback');
+        const data = await resp.json();
+        const imgPart = data?.candidates?.[0]?.content?.parts?.find((p) => p.inlineData);
+        if (!imgPart) throw new Error('No image returned');
+
+        const aiImg = new Image();
+        aiImg.onload = () => {
+          studioProcessedImg = aiImg;
+          renderStudioCanvas();
+          showToast('✨ Foto Studio AI pronta!');
+        };
+        aiImg.src = `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}`;
+      } catch (err) {
+        // Fallback automatico al motore scontorno locale
+        runLocalCutout();
+      } finally {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }
+    };
+
+    // --- GENERATORE ANNUNCI SEO & CHECKLIST ---
+    const AUTH_CHECKLISTS = {
+      levis: [
+        'Bottone principale in metallo con numero fabbrica inciso sul retro (corrispondente all\'etichetta interna)',
+        'Red Tab sulla tasca posteriore con cucitura pulita e ® o scritta Levi\'s nitida',
+        'Salpa (etichetta posteriore in pelle/cartone) con font regolare e taglia W/L ben allineata',
+        'Cuciture interne robuste e rivetti in rame con incisione interna',
+      ],
+      carhartt: [
+        'Patch quadrata con logo C ben centrata e cucitura perimetrale dritta',
+        'Etichetta interna bianca con codice modello (es. J001, I02...) e stabilimento produzione',
+        'Zip pesante in ottone/metallo marchiata YKK o Carhartt',
+        'Tessuto duck canvas spesso e consistente al tatto',
+      ],
+      tnf: [
+        'Logo ricamato sul petto e sulla spalla con lettere ben distanziate (nessun filo che unisce le lettere)',
+        'Ologramma interno lucido cucito vicino all\'etichetta taglia',
+        'Zip YKK con laccetti marchiati The North Face',
+      ],
+      nintendo: [
+        'Logo Nintendo inciso sul retro della cartuccia con la "i" dal puntino quadrato',
+        'Numero impresso a secco (2 cifre) sull\'etichetta frontale della cartuccia',
+        'Vite tri-wing (a Y) sul retro della cartuccia Game Boy / GBA',
+        'Test avvio gioco e salvataggio batteria funzionante prima di confermare',
+      ],
+      sneakers: [
+        'Etichetta interna linguetta con codice SKU (es. CW2288-111) identico a quello sulla scatola',
+        'Cuciture intersuola regolari senza sbavature di colla evidenti',
+        'Odore di gomma/pelle normale (no odore chimico forte di colla)',
+      ],
+    };
+
+    const renderAuthChecklist = () => {
+      const brand = document.getElementById('authBrandSelect').value;
+      const list = AUTH_CHECKLISTS[brand] || [];
+      document.getElementById('authChecklistItems').innerHTML = list.map((txt, idx) => `
+        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 cursor-pointer">
+          <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-vinted-500" />
+          <span class="text-slate-700 dark:text-slate-200 leading-snug">${esc(txt)}</span>
+        </label>
+      `).join('');
+    };
+
+    const generateSeoTemplate = () => {
+      const name = document.getElementById('seoBrandModel').value.trim() || 'Articolo Vintage Originale';
+      const size = document.getElementById('seoSize').value.trim();
+      const cond = document.getElementById('seoCondition').value.trim() || 'Ottime condizioni';
+      const meas = document.getElementById('seoMeasurements').value.trim();
+
+      const rawTitle = `${name}${size ? ` - Taglia ${size}` : ''} Originale`;
+      const finalTitle = rawTitle.slice(0, 65);
+      document.getElementById('seoTitleOut').textContent = finalTitle;
+      document.getElementById('seoTitleLen').textContent = finalTitle.length;
+
+      const desc = [
+        `✨ ${name.toUpperCase()} - 100% ORIGINALE`,
+        ``,
+        `📏 Taglia: ${size || 'Vedi etichetta / misure'}`,
+        meas ? `📐 Misure reali: ${meas}` : null,
+        `✅ Condizioni: ${cond}`,
+        ``,
+        `📦 Spedizione veloce e tracciata entro 24 ore dalla conferma (InPost, Poste, BRT).`,
+        `💬 Scrivimi pure per ulteriori foto o info!`,
+      ].filter((l) => l !== null).join('\n');
+
+      document.getElementById('seoDescOut').textContent = desc;
+    };
+
+    const generateSeoWithAi = async () => {
+      const name = document.getElementById('seoBrandModel').value.trim();
+      if (!name) return showToast('⚠️ Inserisci il nome dell\'articolo');
+      const size = document.getElementById('seoSize').value.trim();
+      const cond = document.getElementById('seoCondition').value.trim();
+      const meas = document.getElementById('seoMeasurements').value.trim();
+
+      const btn = document.getElementById('generateSeoAiBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Generazione...';
+
+      try {
+        const prompt = `Sei un top seller Vinted Italia. Crea un titolo SEO (max 65 caratteri) e una descrizione schematica persuasiva in italiano per vendere velocemente: Articolo="${name}", Taglia="${size}", Condizioni="${cond}", Misure="${meas}". Rispondi SOLO in JSON: {"titolo":"...","descrizione":"..."}`;
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: 'application/json', temperature: 0.3 },
+          }),
+        });
+        if (!resp.ok) throw new Error('API fallback');
+        const res = await resp.json();
+        const parsed = JSON.parse(res.candidates[0].content.parts[0].text);
+        const t = (parsed.titolo || name).slice(0, 65);
+        document.getElementById('seoTitleOut').textContent = t;
+        document.getElementById('seoTitleLen').textContent = t.length;
+        document.getElementById('seoDescOut').textContent = parsed.descrizione || '';
+        showToast('✨ Annuncio AI generato!');
+      } catch {
+        generateSeoTemplate();
+        showToast('⚡ Generato con template rapido');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✨ Genera con AI';
+      }
+    };
+
+    const updateListPriceCalc = () => {
+      const cost = parseFloat(document.getElementById('calcListCost').value) || 0;
+      const minMargin = parseFloat(document.getElementById('calcListDesiredMargin').value) || 0;
+      const floor = cost + minMargin;
+      const list15 = Math.ceil((floor / 0.85) * 2) / 2;
+      const list20 = Math.ceil((floor / 0.80) * 2) / 2;
+
+      document.getElementById('outMinFloor').textContent = euro(floor);
+      document.getElementById('outList15').textContent = euro(list15);
+      document.getElementById('outList20').textContent = euro(list20);
+    };
+
+    // --- TAB 4: SPESE EXTRA & ANALYTICS ---
+    const renderAnalyticsTab = () => {
+      const totalExp = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+      document.getElementById('totalExpensesBadge').textContent = `-${euro(totalExp)}`;
+
+      const expList = document.getElementById('expensesList');
+      if (expenses.length === 0) {
+        expList.innerHTML = `<p class="text-xs text-slate-400 py-1">Nessuna spesa extra registrata.</p>`;
+      } else {
+        expList.innerHTML = expenses.map((e) => `
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs">
+            <div>
+              <span class="font-semibold">${esc(e.desc)}</span>
+              <span class="text-[10px] text-slate-400 ml-1.5">${esc(e.date)}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <strong class="text-rose-500">-${euro(e.amount)}</strong>
+              <button type="button" onclick="deleteExpense('${e.id}')" class="text-slate-400 hover:text-rose-500">✕</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Statistiche per Categoria
+      const cats = ['Abbigliamento', 'Sneakers', 'Retro-Gaming/Elettronica', 'Accessori'];
+      const soldItems = items.filter((i) => i.status === 'sold');
+      const catStats = cats.map((c) => {
+        const list = soldItems.filter((i) => i.category === c);
+        const rev = list.reduce((s, i) => s + (Number(i.soldPrice) || 0), 0);
+        const cost = list.reduce((s, i) => s + (Number(i.totalCost) || 0), 0);
+        const profit = rev - cost;
+        const roi = cost > 0 ? Math.round((profit / cost) * 100) : 0;
+        return { c, count: list.length, profit, roi };
+      });
+
+      const maxP = Math.max(1, ...catStats.map((x) => Math.max(0, x.profit)));
+      document.getElementById('categoryStatsContainer').innerHTML = catStats.map((s) => {
+        const pct = s.profit > 0 ? Math.max(8, Math.round((s.profit / maxP) * 100)) : 0;
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="font-bold">${esc(s.c)} <span class="text-slate-400 font-normal">(${s.count} venduti · ROI ${s.roi}%)</span></span>
+              <strong class="${s.profit >= 0 ? 'text-emerald-500' : 'text-rose-500'}">${signedEuro(s.profit)}</strong>
+            </div>
+            <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-vinted-400 to-emerald-400 rounded-full" style="width:${pct}%"></div>
+            </div>
+          </div>`;
+      }).join('');
+    };
+
+    const renderAll = () => {
+      renderDashboard();
+      renderAnalyticsTab();
+    };
+
+    // --- AZIONI GLOBALI ARTICOLI ---
+    window.editItem = (id) => {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      document.getElementById('purchaseModalTitle').textContent = '✏️ Modifica Articolo';
+      document.getElementById('editItemId').value = item.id;
+      document.getElementById('fTitle').value = item.title;
+      document.getElementById('fCategory').value = item.category;
+      document.getElementById('fDate').value = item.buyDate || todayStr();
+      document.getElementById('fBuyPrice').value = item.buyPrice;
+      document.getElementById('fShipping').value = item.shippingCost;
+      document.getElementById('fTargetPrice').value = item.targetPrice;
+      document.getElementById('fNotes').value = item.notes || '';
+      document.getElementById('itemPhotoDataUrl').value = item.photo || '';
+      const thumb = document.getElementById('fPhotoThumb');
+      if (item.photo) {
+        thumb.src = item.photo;
+        thumb.classList.remove('hidden');
+        document.getElementById('fPhotoStatus').textContent = 'Foto allegata';
+      } else {
+        thumb.classList.add('hidden');
+        document.getElementById('fPhotoStatus').textContent = 'Nessuna foto allegata';
+      }
+      updatePurchaseCalc();
+      openModal('purchaseModal');
+    };
+
+    window.deleteItem = (id) => {
+      askConfirm('Elimina articolo', 'Vuoi eliminare questo articolo dal magazzino?', () => {
+        items = items.filter((i) => i.id !== id);
+        saveState();
+        showToast('🗑️ Articolo rimosso');
+      });
+    };
+
+    window.deleteExpense = (id) => {
+      expenses = expenses.filter((e) => e.id !== id);
+      saveState();
+      showToast('🗑️ Spesa rimossa');
+    };
+
+    window.openSellModal = (id) => {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      document.getElementById('sellItemId').value = item.id;
+      document.getElementById('sellTitleLabel').textContent = item.title;
+      document.getElementById('sellCostLabel').textContent = euro(item.totalCost);
+      document.getElementById('sSoldPrice').value = item.targetPrice || '';
+      document.getElementById('sSoldDate').value = todayStr();
+      updateSellCalc();
+      openModal('sellModal');
+    };
+
+    window.sendToSeoGenerator = (id) => {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      switchTab('tools');
+      document.getElementById('seoBrandModel').value = item.title;
+      document.getElementById('seoMeasurements').value = item.notes || '';
+      generateSeoTemplate();
+      showToast('📝 Dati caricati nel generatore SEO');
+    };
+
+    // --- MODALI & FORM CALCOLI ---
+    const openModal = (id) => {
+      const m = document.getElementById(id);
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    };
+
+    const closeModals = () => {
+      ['purchaseModal', 'sellModal', 'attachStockModal'].forEach((id) => {
+        const m = document.getElementById(id);
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      });
+    };
+
+    const updatePurchaseCalc = () => {
+      const p = parseFloat(document.getElementById('fBuyPrice').value) || 0;
+      const ship = parseFloat(document.getElementById('fShipping').value) || 0;
+      const target = parseFloat(document.getElementById('fTargetPrice').value) || 0;
+      const fee = calcFee(p);
+      const total = calcTotalCost(p, ship);
+      const margin = target - total;
+      const roi = total > 0 ? Math.round((margin / total) * 100) : 0;
+
+      document.getElementById('previewFee').textContent = euro(fee);
+      document.getElementById('previewTotalCost').textContent = euro(total);
+      const mEl = document.getElementById('previewMargin');
+      mEl.textContent = `${signedEuro(margin)} (${roi > 0 ? '+' : ''}${roi}%)`;
+      mEl.className = `font-extrabold ${margin >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
+    };
+
+    const updateSellCalc = () => {
+      const id = document.getElementById('sellItemId').value;
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      const sold = parseFloat(document.getElementById('sSoldPrice').value) || 0;
+      const profit = sold - (Number(item.totalCost) || 0);
+      const roi = item.totalCost > 0 ? Math.round((profit / item.totalCost) * 100) : 0;
+      document.getElementById('sProfitPreview').textContent = signedEuro(profit);
+      document.getElementById('sRoiPreview').textContent = `ROI: ${roi > 0 ? '+' : ''}${roi}%`;
+    };
+
+    const switchTab = (tabName) => {
+      document.querySelectorAll('.tab-panel').forEach((p) => p.classList.add('hidden'));
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+      document.querySelectorAll('.bottom-nav-btn').forEach((b) => {
+        if (b.dataset.tab === tabName) {
+          b.className = 'bottom-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-vinted-600 dark:text-vinted-400 font-bold';
+        } else {
+          b.className = 'bottom-nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 dark:text-slate-400 font-medium';
+        }
+      });
+    };
+
+    // --- INIT EVENTI ---
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+
+      // Tema
+      if (localStorage.getItem(STORAGE_THEME_KEY) === 'light') {
+        document.documentElement.classList.remove('dark');
+      }
+      document.getElementById('themeToggleBtn').addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem(STORAGE_THEME_KEY, isDark ? 'dark' : 'light');
+      });
+
+      // Bottom Tab Bar
+      document.querySelectorAll('.bottom-nav-btn').forEach((btn) => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      // DAC7 Info toggle
+      document.getElementById('toggleDac7InfoBtn').addEventListener('click', () => {
+        document.getElementById('dac7InfoText').classList.toggle('hidden');
+      });
+
+      // Filtri Stock
+      document.querySelectorAll('.stock-filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          stockFilter = btn.dataset.filter;
+          document.querySelectorAll('.stock-filter-btn').forEach((b) => {
+            b.className = 'stock-filter-btn py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 transition';
+          });
+          btn.className = 'stock-filter-btn py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-vinted-600 dark:text-vinted-400 shadow-sm transition';
+          renderInventoryList();
+        });
+      });
+
+      document.getElementById('searchInventoryInput').addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        renderInventoryList();
+      });
+
+      // Apertura Modale Nuovo Acquisto (Manuale o Bot)
+      const openNewModal = (botMode = false) => {
+        document.getElementById('purchaseModalTitle').textContent = '➕ Nuovo Acquisto';
+        document.getElementById('purchaseForm').reset();
+        document.getElementById('editItemId').value = '';
+        document.getElementById('itemPhotoDataUrl').value = '';
+        document.getElementById('fPhotoThumb').classList.add('hidden');
+        document.getElementById('fPhotoStatus').textContent = 'Nessuna foto allegata';
+        document.getElementById('fDate').value = todayStr();
+        document.getElementById('fShipping').value = '4.50';
+        updatePurchaseCalc();
+
+        if (botMode) {
+          document.getElementById('botPasteBox').classList.remove('hidden');
+          document.getElementById('modeBotBtn').className = 'py-2 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-vinted-600 dark:text-vinted-400 shadow-sm flex items-center justify-center gap-1';
+          document.getElementById('modeManualBtn').className = 'py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400';
+        } else {
+          document.getElementById('botPasteBox').classList.add('hidden');
+          document.getElementById('modeManualBtn').className = 'py-2 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-vinted-600 dark:text-vinted-400 shadow-sm';
+          document.getElementById('modeBotBtn').className = 'py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center justify-center gap-1';
+        }
+        openModal('purchaseModal');
+      };
+
+      document.getElementById('openNewItemModalBtn').addEventListener('click', () => openNewModal(false));
+      document.getElementById('openBotPasteQuickBtn').addEventListener('click', () => openNewModal(true));
+
+      document.getElementById('modeManualBtn').addEventListener('click', () => {
+        document.getElementById('botPasteBox').classList.add('hidden');
+        document.getElementById('modeManualBtn').className = 'py-2 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-vinted-600 dark:text-vinted-400 shadow-sm';
+        document.getElementById('modeBotBtn').className = 'py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center justify-center gap-1';
+      });
+
+      document.getElementById('modeBotBtn').addEventListener('click', () => {
+        document.getElementById('botPasteBox').classList.remove('hidden');
+        document.getElementById('modeBotBtn').className = 'py-2 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-vinted-600 dark:text-vinted-400 shadow-sm flex items-center justify-center gap-1';
+        document.getElementById('modeManualBtn').className = 'py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400';
+      });
+
+      // Parser automatico messaggio Telegram Bot
+      document.getElementById('parseBotTextBtn').addEventListener('click', () => {
+        const raw = document.getElementById('botRawTextarea').value || '';
+        const modM = raw.match(/Modello AI:\s*(.+)/i);
+        const titM = raw.match(/Titolo:\s*(.+)/i);
+        const priceM = raw.match(/Prezzo annuncio:\s*([\d.,]+)/i);
+        const estM = raw.match(/Rivendita stimata:\s*([\d.,]+)/i);
+
+        const titleVal = (modM && modM[1].trim() !== 'Non specificato' ? modM[1] : (titM ? titM[1] : '')).trim();
+        if (titleVal) document.getElementById('fTitle').value = titleVal;
+        if (priceM) document.getElementById('fBuyPrice').value = parseFloat(priceM[1].replace(',', '.'));
+        if (estM) document.getElementById('fTargetPrice').value = parseFloat(estM[1].replace(',', '.'));
+
+        // Rileva categoria
+        const low = titleVal.toLowerCase();
+        if (/nintendo|gameboy|game boy|playstation|ps4|ps5|switch|console/i.test(low)) {
+          document.getElementById('fCategory').value = 'Retro-Gaming/Elettronica';
+        } else if (/nike|adidas|jordan|new balance|asics|salomon|scarpe|sneaker/i.test(low)) {
+          document.getElementById('fCategory').value = 'Sneakers';
+        } else {
+          document.getElementById('fCategory').value = 'Abbigliamento';
+        }
+
+        updatePurchaseCalc();
+        showToast('⚡ Dati estratti dal messaggio del Bot!');
+      });
+
+      // Caricamento foto compressa nel form acquisto
+      document.getElementById('fPhotoInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const c = document.createElement('canvas');
+            const scale = Math.min(1, 450 / Math.max(img.width, img.height));
+            c.width = Math.round(img.width * scale);
+            c.height = Math.round(img.height * scale);
+            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+            const dataUrl = c.toDataURL('image/jpeg', 0.75);
+            document.getElementById('itemPhotoDataUrl').value = dataUrl;
+            const thumb = document.getElementById('fPhotoThumb');
+            thumb.src = dataUrl;
+            thumb.classList.remove('hidden');
+            document.getElementById('fPhotoStatus').textContent = 'Foto pronta';
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      ['fBuyPrice', 'fShipping', 'fTargetPrice'].forEach((id) => {
+        document.getElementById(id).addEventListener('input', updatePurchaseCalc);
+      });
+      document.getElementById('sSoldPrice').addEventListener('input', updateSellCalc);
+
+      // Submit Acquisto
+      document.getElementById('purchaseForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('editItemId').value;
+        const title = document.getElementById('fTitle').value.trim();
+        const category = document.getElementById('fCategory').value;
+        const buyDate = document.getElementById('fDate').value || todayStr();
+        const buyPrice = parseFloat(document.getElementById('fBuyPrice').value) || 0;
+        const shippingCost = parseFloat(document.getElementById('fShipping').value) || 0;
+        const targetPrice = parseFloat(document.getElementById('fTargetPrice').value) || 0;
+        const notes = document.getElementById('fNotes').value.trim();
+        const photo = document.getElementById('itemPhotoDataUrl').value || '';
+        const totalCost = calcTotalCost(buyPrice, shippingCost);
+
+        if (editId) {
+          const idx = items.findIndex((i) => i.id === editId);
+          if (idx !== -1) {
+            items[idx] = { ...items[idx], title, category, buyDate, buyPrice, shippingCost, totalCost, targetPrice, notes, photo };
+          }
+          showToast('✏️ Articolo aggiornato');
+        } else {
+          items.unshift({
+            id: 'itm_' + Date.now(),
+            title,
+            category,
+            buyDate,
+            buyPrice,
+            shippingCost,
+            totalCost,
+            targetPrice,
+            notes,
+            photo,
+            status: 'stock',
+            soldPrice: null,
+            soldDate: null,
+          });
+          showToast('✅ Articolo aggiunto in stock!');
+        }
+        closeModals();
+        saveState();
+      });
+
+      // Submit Vendita
+      document.getElementById('sellForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('sellItemId').value;
+        const idx = items.findIndex((i) => i.id === id);
+        if (idx !== -1) {
+          items[idx].status = 'sold';
+          items[idx].soldPrice = parseFloat(document.getElementById('sSoldPrice').value) || 0;
+          items[idx].soldDate = document.getElementById('sSoldDate').value || todayStr();
+          showToast('🎉 Vendita registrata!');
+        }
+        closeModals();
+        saveState();
+      });
+
+      // --- STUDIO FOTO EVENTS ---
+      document.getElementById('photoUploadInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            studioOriginalImg = img;
+            studioProcessedImg = null;
+            renderStudioCanvas();
+            showToast('📷 Foto caricata nello Studio');
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.querySelectorAll('.photo-tool-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.photo-tool-btn').forEach((b) => {
+            b.className = 'photo-tool-btn py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400';
+          });
+          btn.className = 'photo-tool-btn py-2 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-vinted-600 dark:text-vinted-400 shadow-sm';
+          document.querySelectorAll('.photo-tool-panel').forEach((p) => p.classList.add('hidden'));
+          document.getElementById(`phototool-${btn.dataset.phototool}`).classList.remove('hidden');
+        });
+      });
+
+      document.querySelectorAll('.bg-preset-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          studioBgColor = btn.dataset.bg;
+          document.querySelectorAll('.bg-preset-btn').forEach((b) => b.classList.remove('border-2', 'border-vinted-500'));
+          btn.classList.add('border-2', 'border-vinted-500');
+          renderStudioCanvas();
+        });
+      });
+
+      document.getElementById('bgToleranceSlider').addEventListener('input', (e) => {
+        document.getElementById('bgToleranceVal').textContent = e.target.value;
+      });
+      document.getElementById('resetBgBtn').addEventListener('click', () => {
+        studioProcessedImg = null;
+        renderStudioCanvas();
+      });
+      document.getElementById('applyLocalCutoutBtn').addEventListener('click', runLocalCutout);
+      document.getElementById('applyAiStudioBtn').addEventListener('click', runAiStudioPhoto);
+
+      // Misure Overlay
+      document.getElementById('toggleMeasureOverlay').addEventListener('change', (e) => {
+        studioShowMeasures = e.target.checked;
+        renderStudioCanvas();
+      });
+
+      document.querySelectorAll('.measure-type-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          studioMeasureType = btn.dataset.mtype;
+          document.querySelectorAll('.measure-type-btn').forEach((b) => {
+            b.className = 'measure-type-btn py-2 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+          });
+          btn.className = 'measure-type-btn py-2 px-3 rounded-xl text-xs font-bold bg-vinted-500 text-white';
+          if (studioMeasureType === 'top') {
+            document.getElementById('measure1Label').textContent = 'Pit-to-Pit / Larghezza (cm)';
+            document.getElementById('measure2Label').textContent = 'Lunghezza Totale (cm)';
+          } else {
+            document.getElementById('measure1Label').textContent = 'Larghezza Vita (cm)';
+            document.getElementById('measure2Label').textContent = 'Lunghezza Gamba (cm)';
+          }
+          renderStudioCanvas();
+        });
+      });
+
+      ['measure1Input', 'measure2Input'].forEach((id) => {
+        document.getElementById(id).addEventListener('input', renderStudioCanvas);
+      });
+
+      // Luce & Colore
+      ['brightSlider', 'contrastSlider', 'satSlider'].forEach((id) => {
+        document.getElementById(id).addEventListener('input', () => {
+          document.getElementById('brightVal').textContent = document.getElementById('brightSlider').value + '%';
+          document.getElementById('contrastVal').textContent = document.getElementById('contrastSlider').value + '%';
+          document.getElementById('satVal').textContent = document.getElementById('satSlider').value + '%';
+          renderStudioCanvas();
+        });
+      });
+
+      document.getElementById('autoFixLightBtn').addEventListener('click', () => {
+        document.getElementById('brightSlider').value = 112;
+        document.getElementById('contrastSlider').value = 110;
+        document.getElementById('satSlider').value = 108;
+        document.getElementById('brightVal').textContent = '112%';
+        document.getElementById('contrastVal').textContent = '110%';
+        document.getElementById('satVal').textContent = '108%';
+        renderStudioCanvas();
+        showToast('☀️ Luce ottimizzata!');
+      });
+
+      document.getElementById('resetLightBtn').addEventListener('click', () => {
+        document.getElementById('brightSlider').value = 100;
+        document.getElementById('contrastSlider').value = 100;
+        document.getElementById('satSlider').value = 100;
+        document.getElementById('brightVal').textContent = '100%';
+        document.getElementById('contrastVal').textContent = '100%';
+        document.getElementById('satVal').textContent = '100%';
+        renderStudioCanvas();
+      });
+
+      // Scarica Foto
+      document.getElementById('downloadPhotoBtn').addEventListener('click', () => {
+        if (!studioOriginalImg && !studioProcessedImg) return showToast('⚠️ Carica prima una foto');
+        const canvas = document.getElementById('photoStudioCanvas');
+        const link = document.createElement('a');
+        link.download = `vinted_studio_${Date.now()}.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.92);
+        link.click();
+        showToast('⬇️ Foto pronta per Vinted!');
+      });
+
+      // Associa Foto a Stock
+      document.getElementById('attachPhotoToStockBtn').addEventListener('click', () => {
+        if (!studioOriginalImg && !studioProcessedImg) return showToast('⚠️ Carica prima una foto');
+        const stock = items.filter((i) => i.status === 'stock');
+        const listEl = document.getElementById('attachStockList');
+        if (stock.length === 0) {
+          listEl.innerHTML = `<p class="text-xs text-slate-400">Nessun articolo in stock disponibile.</p>`;
+        } else {
+          listEl.innerHTML = stock.map((i) => `
+            <button type="button" onclick="confirmAttachPhoto('${i.id}')"
+              class="w-full text-left p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-vinted-500/15 text-xs font-bold truncate">
+              📦 ${esc(i.title)}
+            </button>
+          `).join('');
+        }
+        openModal('attachStockModal');
+      });
+
+      window.confirmAttachPhoto = (itemId) => {
+        const srcCanvas = document.getElementById('photoStudioCanvas');
+        const thumbCanvas = document.createElement('canvas');
+        const scale = Math.min(1, 450 / Math.max(srcCanvas.width, srcCanvas.height));
+        thumbCanvas.width = Math.round(srcCanvas.width * scale);
+        thumbCanvas.height = Math.round(srcCanvas.height * scale);
+        thumbCanvas.getContext('2d').drawImage(srcCanvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
+
+        const idx = items.findIndex((i) => i.id === itemId);
+        if (idx !== -1) {
+          items[idx].photo = thumbCanvas.toDataURL('image/jpeg', 0.78);
+          saveState();
+          showToast('✅ Foto associata all\'articolo!');
+        }
+        closeModals();
+      };
+
+      // --- STRUMENTI & SEO ---
+      document.getElementById('seoStockSelect').addEventListener('change', (e) => {
+        const item = items.find((i) => i.id === e.target.value);
+        if (!item) return;
+        document.getElementById('seoBrandModel').value = item.title;
+        document.getElementById('seoMeasurements').value = item.notes || '';
+        generateSeoTemplate();
+      });
+
+      document.getElementById('generateSeoInstantBtn').addEventListener('click', generateSeoTemplate);
+      document.getElementById('generateSeoAiBtn').addEventListener('click', generateSeoWithAi);
+
+      document.querySelectorAll('.copy-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetEl = document.getElementById(btn.dataset.copyTarget);
+          if (targetEl) copyText(targetEl.textContent);
+        });
+      });
+
+      ['calcListCost', 'calcListDesiredMargin'].forEach((id) => {
+        document.getElementById(id).addEventListener('input', updateListPriceCalc);
+      });
+      updateListPriceCalc();
+
+      document.getElementById('authBrandSelect').addEventListener('change', renderAuthChecklist);
+      renderAuthChecklist();
+
+      // --- SPESE EXTRA & BACKUP ---
+      document.getElementById('expenseForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const desc = document.getElementById('expDesc').value.trim();
+        const amount = parseFloat(document.getElementById('expAmount').value) || 0;
+        if (!desc || amount <= 0) return;
+        expenses.unshift({ id: 'exp_' + Date.now(), desc, amount, date: todayStr() });
+        document.getElementById('expenseForm').reset();
+        saveState();
+        showToast('💸 Spesa extra registrata');
+      });
+
+      document.getElementById('exportCsvBtn').addEventListener('click', () => {
+        const headers = ['Titolo', 'Categoria', 'Stato', 'Data Acquisto', 'Costo Totale', 'Target', 'Venduto a', 'Data Vendita'];
+        const rows = items.map((i) => [
+          `"${(i.title || '').replace(/"/g, '""')}"`,
+          `"${i.category}"`,
+          i.status === 'sold' ? 'Venduto' : 'In Stock',
+          i.buyDate || '',
+          i.totalCost || 0,
+          i.targetPrice || 0,
+          i.soldPrice || '',
+          i.soldDate || '',
+        ].join(';'));
+        const csv = '\uFEFF' + [headers.join(';'), ...rows].join('\n');
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        a.download = `vinted_tracker_${todayStr()}.csv`;
+        a.click();
+        showToast('📊 CSV scaricato');
+      });
+
+      document.getElementById('exportJsonBtn').addEventListener('click', () => {
+        const payload = { items, expenses };
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+        a.download = `vinted_tracker_backup_${todayStr()}.json`;
+        a.click();
+        showToast('💾 Backup JSON scaricato');
+      });
+
+      document.getElementById('importJsonInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            if (Array.isArray(data)) {
+              items = data;
+            } else if (data && Array.isArray(data.items)) {
+              items = data.items;
+              expenses = Array.isArray(data.expenses) ? data.expenses : [];
+            } else {
+              throw new Error('Invalid');
+            }
+            saveState();
+            showToast('✅ Backup ripristinato!');
+          } catch {
+            showToast('⚠️ File JSON non valido');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      document.getElementById('loadDemoDataBtn').addEventListener('click', () => {
+        items = [
+          {
+            id: 'demo_1',
+            title: "Levi's 501 Vintage Made in USA",
+            category: 'Abbigliamento',
+            buyDate: todayStr(),
+            buyPrice: 18,
+            shippingCost: 4.5,
+            totalCost: calcTotalCost(18, 4.5),
+            targetPrice: 54,
+            notes: 'W32 L32 - Lavaggio chiaro',
+            photo: '',
+            status: 'stock',
+            soldPrice: null,
+            soldDate: null,
+          },
+          {
+            id: 'demo_2',
+            title: 'Nintendo Game Boy Advance SP',
+            category: 'Retro-Gaming/Elettronica',
+            buyDate: '2026-11-08',
+            buyPrice: 30,
+            shippingCost: 4.5,
+            totalCost: calcTotalCost(30, 4.5),
+            targetPrice: 75,
+            notes: 'Funzionante con caricabatterie',
+            photo: '',
+            status: 'sold',
+            soldPrice: 72,
+            soldDate: '2026-11-15',
+          },
+        ];
+        expenses = [{ id: 'exp_demo', desc: 'Pacchetto 20 buste spedizione', amount: 6.5, date: todayStr() }];
+        saveState();
+        showToast('✨ Dati demo caricati');
+      });
+
+      document.getElementById('resetDataBtn').addEventListener('click', () => {
+        askConfirm('Svuota tutto', 'Cancellare definitivamente tutti gli articoli e le spese?', () => {
+          items = [];
+          expenses = [];
+          saveState();
+          showToast('🧹 Dati cancellati');
+        });
+      });
+
+      // Chiusure modali
+      document.querySelectorAll('.close-modal').forEach((b) => b.addEventListener('click', closeModals));
+      document.getElementById('confirmCancelBtn').addEventListener('click', closeConfirm);
+      document.getElementById('confirmOkBtn').addEventListener('click', () => {
+        if (confirmCallback) confirmCallback();
+        closeConfirm();
+      });
+
+      // Avvio
+      loadState();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
